@@ -28,7 +28,7 @@ public class Snake : MonoBehaviour {
 		}
 		// Collided with Tail or Border
 		else {
-			Application.LoadLevel ("start_menu");
+			Application.LoadLevel (0);
 			// ToDo 'You lose' screen
 		}
 	}
