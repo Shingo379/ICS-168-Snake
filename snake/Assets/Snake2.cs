@@ -4,31 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 
-public class Current_Player{
-	public Current_Player(string i, float start_x, float start_y, float start_dirx, float start_diry)
-	{
-		ID = i;
-		x = start_x;
-		y = start_y;
-		dir_x = start_dirx;
-		dir_y = start_diry;
-	}
-	public string ID;
-	public float x;
-	public float y;
-	public float dir_x;
-	public float dir_y;
-}
-
-public class Snake : MonoBehaviour {
+public class Snake2 : MonoBehaviour {
 //	AsynchronousClient aclient = new AsynchronousClient ();
 //	Socket client;
 	//bool c = aclient.Send(
 	// Current Movement Direction
 	// (by default it moves to the right)
+	string ID = string.Empty;
 	Vector2 dir = Vector2.right;
-	Vector2 old_dir;
-	Current_Player p;
 
 	// Keep Track of Tail
 	List<Transform> tail = new List<Transform>();
@@ -57,9 +40,13 @@ public class Snake : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		p = new Current_Player (Startgame.Client.ID, transform.position.x,
-		                        transform.position.y, dir.x, dir.y);
 		// Move the Snake every 300ms
+		if (gameObject.name == "Head") {
+			string ID = "0";
+		}
+		else if (gameObject.name == "Head 1") {
+			string ID = "1";
+		}
 		InvokeRepeating("Move", 0.15f, 0.15f);    
 	}
 	
@@ -67,23 +54,23 @@ public class Snake : MonoBehaviour {
 	void Update () {
 		// Move in a new Direction?
 
-		old_dir = dir;
+		//string coords = Startgame.Receive ();
 
-		if (Input.GetKey(KeyCode.RightArrow) && dir != -Vector2.right)
-			dir = Vector2.right;
-		else if (Input.GetKey(KeyCode.DownArrow) && dir != Vector2.up)
-			dir = -Vector2.up;    // '-up' means 'down'
-		else if (Input.GetKey(KeyCode.LeftArrow) && dir != Vector2.right)
-			dir = -Vector2.right; // '-right' means 'left'
-		else if (Input.GetKey(KeyCode.UpArrow) && dir != -Vector2.up)
-			dir = Vector2.up;
 
-		if (old_dir != dir) {
-			Update_Player();
-			string output = JsonConvert.SerializeObject(p);
-			//UnityEngine.Debug.Log(output);
-			Startgame.Client.SendGameData("<GAME>" + output + "<EOF>");
-		}
+		//int x
+		//coords.Split (":", System.StringSplitOptions.None);
+
+
+//		if (Input.GetKey(KeyCode.RightArrow) && dir != -Vector2.right)
+//			dir = Vector2.right;
+//		else if (Input.GetKey(KeyCode.DownArrow) && dir != Vector2.up)
+//			dir = -Vector2.up;    // '-up' means 'down'
+//		else if (Input.GetKey(KeyCode.LeftArrow) && dir != Vector2.right)
+//			dir = -Vector2.right; // '-right' means 'left'
+//		else if (Input.GetKey(KeyCode.UpArrow) && dir != -Vector2.up)
+//			dir = Vector2.up;
+
+		//Startgame.Client.SendGameData (dir.x.ToString() + ":" + dir.y.ToString()+"<EOF>");
 	}
 
 	void Move() {
@@ -116,10 +103,9 @@ public class Snake : MonoBehaviour {
 			tail.RemoveAt(tail.Count-1);
 		}
 	}
-	void Update_Player() {
-		p.x = transform.position.x;
-		p.y = transform.position.y;
-		p.dir_x = dir.x;
-		p.dir_y = dir.y;
+
+	public void Get_Info(float x, float y, float dir_x, float dir_y){
+		dir.x = dir_x;
+		dir.y = dir_y;
 	}
 }

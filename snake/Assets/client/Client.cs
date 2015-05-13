@@ -32,8 +32,9 @@ public class AsynchronousClient {
 	// The response from the remote device.
 	//private static String response = String.Empty;
 	static string[] stringSeparators = new string[] { "<EOF>" };
-
-	public static Boolean StartClient(string username, string password) {
+	public string ID = String.Empty;
+	public Socket client;
+	public Boolean StartClient(string username, string password) {
 		// Connect to a remote device.
 		try {
 			// Establish the remote endpoint for the socket.
@@ -44,27 +45,31 @@ public class AsynchronousClient {
 			IPEndPoint remoteEP = new IPEndPoint(ipAddress, port);
 			
 			// Create a TCP/IP socket.
-			Socket client = new Socket(AddressFamily.InterNetwork,
+			client = new Socket(AddressFamily.InterNetwork,
 			                           SocketType.Stream, ProtocolType.Tcp);
 			
 			// Connect to the remote endpoint.
 			client.BeginConnect( remoteEP, 
 			                    new AsyncCallback(ConnectCallback), client);
 			connectDone.WaitOne(5000);
+			connectDone.Reset();
 			
 			// Send test data to the remote device.
-			Send(client, username + ":" + password + "<EOF>");
+
+			//UnityEngine.Debug.Log ("test");
+			Send(client, "<LOGIN>" + username + "<SEP>" + password + "<EOF>");
 			     sendDone.WaitOne(5000);
 			
 			// Receive the response from the remote device.
 			//Receive(client);
-			   receiveDone.WaitOne(5000);
+			   //receiveDone.WaitOne(5000);
 			StateObject recv_so = new StateObject();
 			recv_so.workSocket = client;
-			
+
 			Receive(recv_so);
+			receiveDone.WaitOne(5000);
 			// Write the response to the console.
-			UnityEngine.Debug.Log(recv_so.response);
+			UnityEngine.Debug.Log (recv_so.response);
 			//Console.WriteLine("Response received : {0}", response);
 			if (recv_so.response == "Success")
 			{
@@ -87,6 +92,16 @@ public class AsynchronousClient {
 		}
 		return false;
 	}
+
+	public void SendGameData(String data)
+	{
+		try {
+			Send (client, data);
+		}
+		catch (Exception e) {
+			Console.WriteLine (e.ToString ());
+		}
+	}
 	
 	private static void ConnectCallback(IAsyncResult ar) {
 		try {
@@ -107,8 +122,9 @@ public class AsynchronousClient {
 		}
 	}
 	
-	private static void Receive(StateObject state) {
+	public void Receive(StateObject state) {
 		try {
+			//UnityEngine.Debug.Log ("calling client.receive");
 			// Create the state object.
 			//StateObject state = new StateObject();
 			//state.workSocket = client;
@@ -123,8 +139,9 @@ public class AsynchronousClient {
 		}
 	}
 	
-	private static void ReceiveCallback( IAsyncResult ar ) {
+	private void ReceiveCallback( IAsyncResult ar ) {
 		try {
+			//UnityEngine.Debug.Log ("right here");
 			// Retrieve the state object and the client socket 
 			// from the asynchronous state object.
 			StateObject state = (StateObject) ar.AsyncState;
@@ -137,15 +154,34 @@ public class AsynchronousClient {
 				// Found a 
 				state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesRead));
 				string content = state.sb.ToString();
+				UnityEngine.Debug.Log(content);
 				
 				String[] message = content.Split(stringSeparators, StringSplitOptions.None);
+
+
 				if (message.Length == 2)
 				{
 					receiveDone.Set();
-					state.response = message[0];
-					
-					state.workSocket.Shutdown(SocketShutdown.Both);
-					state.workSocket.Close();
+					UnityEngine.Debug.Log (message[0]);
+					if (message[0].Contains("<ID>"))
+					{
+						string[] temp = message[0].Split(new string[] {"<ID>"}, StringSplitOptions.None);
+						ID = temp[0];// + "<ID>";
+						state.response = temp[1];
+					}
+					else if (message[0].Contains("<GAME>"))
+					{
+						UnityEngine.Debug.Log ("GAME");
+						//string[] temp = message[0].Split(new string[] {"<GAME>"}, StringSplitOptions.None);
+						//UnityEngine.Debug.Log(temp[1]);
+						state.response = message[0];
+					}
+					else
+						state.response = message[0];
+					//string coords = message[0].Split (":", StringSplitOptions.None);
+
+					//state.workSocket.Shutdown(SocketShutdown.Both);
+					//state.workSocket.Close();
 					
 				}
 				else

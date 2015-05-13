@@ -7,7 +7,7 @@ using System.Data.SQLite;
 
 namespace Snake_Server
 {
-    class Database
+    public class Database
     {
         public void Start()
         {
@@ -26,7 +26,7 @@ namespace Snake_Server
         {
             SQLiteConnection m_dbConnection;
             m_dbConnection =
-                new SQLiteConnection("Data Source= MyDatabase.sqlite;Version=3;");
+                new SQLiteConnection("Data Source=MyDatabase.sqlite;Version=3;");
             m_dbConnection.Open();
 
             string sql = "insert into userinfo(name, password) values ('" + username + "', '" + password + "')";

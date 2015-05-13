@@ -4,8 +4,25 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 // State object for reading client data asynchronously
+public class Player {
+    public Player(string i, float start_x, float start_y, float start_dirx, float start_diry)
+    {
+        ID = i;
+        x = start_x;
+        y = start_y;
+        dir_x = start_dirx;
+        dir_y = start_diry;
+    }
+    public string ID;
+    public float x;
+    public float y;
+    public float dir_x;
+    public float dir_y;
+}
+
 public class StateObject {
     // Client  socket.
     public Socket workSocket = null;
@@ -22,13 +39,19 @@ namespace Snake_Server
     {
         // Thread signal.
         public static ManualResetEvent allDone = new ManualResetEvent(false);
-        public static List<Socket> clients = new List<Socket>();
+        public static Dictionary<String, Socket> clients = new Dictionary<String, Socket>();
+        public static Dictionary<String, Player> players = new Dictionary<String, Player>();
+        public static Player p1 = new Player("0", -21, 15, 1, 0);
+        public static Player p2 = new Player("1", 21, 15, -1, 0);
+        public static Player p3 = new Player("2", -21, -15, 1, 0);
+        public static Player p4 = new Player("3", 21, -15, -1, 0);
+        public static Database d = new Database();
 
         public AsynchronousSocketListener()
         {
         }
 
-        public static void StartListening()
+        public void StartListening()
         {
             // Data buffer for incoming data.
             byte[] bytes = new Byte[1024];
@@ -74,7 +97,6 @@ namespace Snake_Server
 
             Console.WriteLine("\nPress ENTER to continue...");
             Console.Read();
-
         }
 
         public static void AcceptCallback(IAsyncResult ar)
@@ -93,7 +115,22 @@ namespace Snake_Server
             // Games have bidirectional communication (as opposed to request/response)
             // So I need to store all clients sockets so I can send them messages later
             // TODO: store in meaningful way,such as Dictionary<string,Socket>
-            clients.Add(handler);
+            string id = clients.Count.ToString();// + "<ID>";
+            clients.Add(id, handler);
+            if (id == "0")
+                players.Add(id, p1);
+            else if (id == "1")
+                players.Add(id, p2);
+            else if (id == "2")
+                players.Add(id, p3);
+            else if (id == "3")
+                players.Add(id, p4);
+            Dictionary<string, Socket>.KeyCollection keyColl =
+            clients.Keys;
+            foreach (string s in keyColl)
+            {
+                Console.WriteLine("key = {0}", s);
+            }
 
             handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
                 new AsyncCallback(ReadCallback), state);
@@ -101,7 +138,6 @@ namespace Snake_Server
 
         public static void ReadCallback(IAsyncResult ar)
         {
-            Database d = new Database();
             String content = String.Empty;
 
             // Retrieve the state object and the handler socket
@@ -123,26 +159,56 @@ namespace Snake_Server
                 content = state.sb.ToString();
                 if (content.IndexOf("<EOF>") > -1)
                 {
-                    // All the data has been read from the 
+                    // All the data has been read from the  
                     // client. Display it on the console.
                     Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
                         content.Length, content);
                     Console.WriteLine("\n\n");
                     content = content.Substring(0,content.IndexOf("<EOF>"));
                     Console.WriteLine(content);
-                    string[] info = content.Split(':');
-                    Boolean result = d.GetInfo(info[0],info[1]);
-                    // Echo the data back to the client.
-                    if (result == true)
+                    if (content.Contains("<LOGIN>"))
                     {
-                        Console.WriteLine("sending");
-                        Send(handler, "Success<EOF>");
+                        content = content.Substring(content.IndexOf("<LOGIN>") + 7);
+                        string[] info = content.Split(new string[]{"<SEP>"}, StringSplitOptions.None);
+                        Console.WriteLine(info[0]);
+                        Boolean result = d.GetInfo(info[0], info[1]);
+                        if (result == true)
+                        {
+                            Console.WriteLine("sending");
+                            string id = (clients.Count-1).ToString() + "<ID>";
+                            Send(handler, id + "Success<EOF>");
+                            if (clients.Count == 2)
+                            {
+                                Dictionary<string, Socket>.KeyCollection keyColl = clients.Keys;
+                                foreach (string s in keyColl)
+                                {
+                                    Send(clients[s], "GAMESTART<EOF>");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Send(handler, "Failed<EOF>");
+                        }
                     }
-                    else
+                    if (content.Contains("<GAME>"))
                     {
-                        Send(handler, "Failed<EOF>");
+                        content = content.Substring(content.IndexOf("<GAME>") + 6);
+                        Player p = JsonConvert.DeserializeObject<Player>(content);
+                        Console.WriteLine("Player {0} is at {1},{2} moving {3},{4}", p.ID, p.x, p.y, p.dir_x, p.dir_y);
+                        players[p.ID] = p;
+                        Dictionary<string, Player>.KeyCollection keyColl =
+                            players.Keys;
+                        foreach (string s in keyColl)
+                        {
+                            if (s != p.ID)
+                            {
+                                string output = JsonConvert.SerializeObject(players[p.ID]);
+                                Send(clients[s], "<GAME>" + output + "<EOF>");
+                            }
+                        }
                     }
-
+                    //else if (content.Contains("<COORD>"))
                     // Setup a new state object
                     StateObject newstate = new StateObject();
                     newstate.workSocket = handler;

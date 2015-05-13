@@ -7,12 +7,15 @@ using System;
 using System.Text;
 using System.Security.Cryptography;
 
-
 public class Startgame : MonoBehaviour {
-	
+	public static AsynchronousClient Client = new AsynchronousClient();
+	public static StateObject so = new StateObject ();
+	public static StateObject recv_so = new StateObject ();
 	public InputField username;
 	public InputField password;
-	
+	Boolean start = false;
+	Boolean login = false;
+
 	static string GetMd5Hash(MD5 md5Hash, string input)
 	{
 		
@@ -63,15 +66,42 @@ public class Startgame : MonoBehaviour {
 		dbconn = null;*/
 	}
 	// Update is called once per frame
-	void Update () {
+	public void Send (String data)
+	{
+		Client.SendGameData (data);
+	}
 
+	public static string Receive ()
+	{
+		recv_so.sb.Length = 0;
+		recv_so.sb.Capacity = 0;
+		Client.Receive (recv_so);
+		return recv_so.response;
+	}
+
+
+	void Update () {
+		if (login == true) {
+			string temp = Receive ();
+			//UnityEngine.Debug.Log (temp);
+			if (temp == "GAMESTART")
+			{
+				login = false;
+				start = true;
+			}
+		}
+		if (start == true)
+			Application.LoadLevel ("game");
 	}
 	public void LoadScene()  {
 		MD5 md5Hash = MD5.Create();
 		string hash_pass = GetMd5Hash (md5Hash, password.text);
-		Boolean client = AsynchronousClient.StartClient (username.text, hash_pass);
+		Boolean client = Client.StartClient (username.text, hash_pass);
+		so.workSocket = Client.client;
+		recv_so.workSocket = Client.client;
 		if (client == true) {
-			Application.LoadLevel ("game");
+			login = true;
+			//Application.LoadLevel ("game");
 		} 
 	}
 
