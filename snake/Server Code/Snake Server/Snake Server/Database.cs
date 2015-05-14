@@ -14,7 +14,7 @@ namespace Snake_Server
             SQLiteConnection.CreateFile("MyDatabase.sqlite");
             SQLiteConnection m_dbConnection;
             m_dbConnection =
-                new SQLiteConnection("Data Source= MyDatabase.sqlite;Version=3;");
+                new SQLiteConnection("Data Source=MyDatabase.sqlite;Version=3;");
             m_dbConnection.Open();
             string sql = "create table userinfo(name varchar not null unique, password varchar not null, primary key(name))";
             //string sql = "create table userinfo (name varchar(20), password str)";
@@ -39,7 +39,7 @@ namespace Snake_Server
         {
             SQLiteConnection m_dbConnection;
             m_dbConnection =
-                new SQLiteConnection("Data Source= MyDatabase.sqlite;Version=3;");
+                new SQLiteConnection("Data Source=MyDatabase.sqlite;Version=3;");
             m_dbConnection.Open();
             try
             {

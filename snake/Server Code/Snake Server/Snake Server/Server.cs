@@ -21,8 +21,19 @@ public class Player {
     public float y;
     public float dir_x;
     public float dir_y;
+    public int foodX;
+    public int foodY;
 }
-
+public class Food
+{
+    public Food(int start_x, int start_y)
+    {
+        x = start_x;
+        y = start_y;
+    }
+    public int x;
+    public int y;
+}
 public class StateObject {
     // Client  socket.
     public Socket workSocket = null;
@@ -46,6 +57,8 @@ namespace Snake_Server
         public static Player p3 = new Player("2", -21, -15, 1, 0);
         public static Player p4 = new Player("3", 21, -15, -1, 0);
         public static Database d = new Database();
+        //private static bool gamestart = false;
+        private static bool iNeedFood = false;
 
         public AsynchronousSocketListener()
         {
@@ -147,7 +160,21 @@ namespace Snake_Server
 
             // Read data from the client socket. 
             int bytesRead = handler.EndReceive(ar);
-
+            Console.WriteLine(iNeedFood.ToString());
+            if (iNeedFood)
+            {
+                int foodX = SpawnFoodCoords(35, -35);
+                int foodY = SpawnFoodCoords(25, -25);
+                foreach (string s in players.Keys)
+                {
+                    Food ffood = new Food(foodX, foodY);
+                    Console.WriteLine("FOOD COORDS:");
+                    Console.WriteLine("x:" + ffood.x + "  y:" + ffood.y);
+                    string food = JsonConvert.SerializeObject(ffood);
+                    Send(clients[s], "<FOOD>" + food + "<EOF>");
+                }
+                iNeedFood = false;
+            }
             if (bytesRead > 0)
             {
                 // There  might be more data, so store the data received so far.
@@ -183,6 +210,7 @@ namespace Snake_Server
                                 foreach (string s in keyColl)
                                 {
                                     Send(clients[s], "GAMESTART<EOF>");
+                                    //gamestart = true;
                                 }
                             }
                         }
@@ -190,6 +218,27 @@ namespace Snake_Server
                         {
                             Send(handler, "Failed<EOF>");
                         }
+                    }
+                    if (content.Contains("<FOOD>"))
+                    {
+
+                        iNeedFood = true;
+                        Console.WriteLine("HELLO INEEDFOOD");
+                        //Random rX = new Random();
+                        //Random rY = new Random();
+                        /*
+                        int foodX = SpawnFoodCoords(35,-35);
+                        int foodY = SpawnFoodCoords(25, -25);
+                        //Console.WriteLine("FOOD COORDS:");
+                        //Console.WriteLine("x:" + foodX + "  y:" + foodY);
+                        foreach (string s in players.Keys)
+                        {
+                            Food ffood = new Food(foodX, foodY);
+                            Console.WriteLine("FOOD COORDS:");
+                            Console.WriteLine("x:" + ffood.x + "  y:" + ffood.y);
+                            string food = JsonConvert.SerializeObject(ffood);
+                            Send(clients[s], "<FOOD>" + food + "<EOF>");
+                        }*/
                     }
                     if (content.Contains("<GAME>"))
                     {
@@ -199,10 +248,22 @@ namespace Snake_Server
                         players[p.ID] = p;
                         Dictionary<string, Player>.KeyCollection keyColl =
                             players.Keys;
+                        //int foodX = SpawnFoodCoords(35,-35);
+                        //int foodY = SpawnFoodCoords(25, -25);
+                        //Console.WriteLine("FOOD COORDS:");
+                        //Console.WriteLine("x:" + foodX + "  y:" + foodY);
                         foreach (string s in keyColl)
                         {
+                            Console.WriteLine("YOU ARE HERE");
+                            Console.WriteLine(s);
+                            Console.WriteLine(p.ID);
+                            //Food ffood = new Food(foodX, foodY);
+                            //string food = JsonConvert.SerializeObject(ffood);
+                            //Send(clients[s], "<FOOD>" + food + "<EOF>");
                             if (s != p.ID)
                             {
+                                //players[p.ID].foodX = foodX;
+                                //players[p.ID].foodY = foodY;
                                 string output = JsonConvert.SerializeObject(players[p.ID]);
                                 Send(clients[s], "<GAME>" + output + "<EOF>");
                             }
@@ -242,15 +303,22 @@ namespace Snake_Server
             {
                 // Retrieve the socket from the state object.
                 Socket handler = (Socket)ar.AsyncState;
-
                 // Complete sending the data to the remote device.
                 int bytesSent = handler.EndSend(ar);
+               
                 Console.WriteLine("Sent {0} bytes to client.", bytesSent);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
             }
+        }
+        private static int SpawnFoodCoords(int upperRange, int lowerRange)
+        {
+            Random r = new Random();
+            return r.Next(lowerRange, upperRange);
+
+
         }
     }
 }

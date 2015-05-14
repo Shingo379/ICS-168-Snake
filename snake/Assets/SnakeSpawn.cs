@@ -11,15 +11,18 @@ public class SnakeSpawn : MonoBehaviour {
 			if (Startgame.Client.ID == "0") {
 				script1 = GetComponent<Snake> ();
 				script1.enabled = true;
+				//script1.player1Score.text = "Player 1: " + script1.scores;
 			} else {
 				script2 = GetComponent<Snake2> ();
 				script2.enabled = true;
 			}
+
 		}
 		else if (gameObject.name == "Head 1") {
 			if (Startgame.Client.ID == "1") {
 				script1 = GetComponent<Snake> ();
 				script1.enabled = true;
+				//script1.player2Score.text = "Player 2: " + script1.scores;
 			} else {
 				script2 = GetComponent<Snake2> ();
 				script2.enabled = true;

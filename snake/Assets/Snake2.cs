@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using UnityEngine.UI;
 
 public class Snake2 : MonoBehaviour {
 //	AsynchronousClient aclient = new AsynchronousClient ();
@@ -12,6 +13,11 @@ public class Snake2 : MonoBehaviour {
 	// (by default it moves to the right)
 	string ID = string.Empty;
 	Vector2 dir = Vector2.right;
+
+	public int scores1 = 0;
+	public int scores2 = 0;
+	
+	public Text player1Score, player2Score;
 
 	// Keep Track of Tail
 	List<Transform> tail = new List<Transform>();
@@ -24,17 +30,36 @@ public class Snake2 : MonoBehaviour {
 
 	void OnTriggerEnter2D(Collider2D coll) {
 		// Food?
-		if (coll.name.StartsWith("FoodPrefab")) {
+		//first player scores get updated. need to send the info after score++ to server side and receive it to be updated?
+		if ((this.gameObject.name == "Head") && (coll.name.StartsWith("FoodPrefab")))
+		//if (coll.name.StartsWith("FoodPrefab")) 
+		{
 			// Get longer in next Move call
 			ate = true;
 			
+			scores1 ++;
 			// Remove the Food
 			Destroy(coll.gameObject);
+			player1Score.text = "Player 1: " + scores1;
+		}
+		//the second player scores get updated. need to send the info after score++ to server side and receive it to be updated?
+		else if ((this.gameObject.name == "Head 1") && (coll.name.StartsWith ("FoodPrefab"))) 
+		{
+			ate = true;
+			scores2 ++;
+			Destroy(coll.gameObject);
+			player2Score.text = "Player 2: " + scores2;
+
 		}
 		// Collided with Tail or Border
-		else {
-			Application.LoadLevel ("start_menu");
+		else if ((coll.name.StartsWith("TailPrefabP1")) || (coll.name.StartsWith("TailPrefabP2")) || (coll.name.StartsWith("TailPrefab")))  
+		{
+			Application.LoadLevel ("game");
 			// ToDo 'You lose' screen
+		}
+		else if ((coll.name.StartsWith("BorderTop")) || (coll.name.StartsWith("BorderLeft")) || (coll.name.StartsWith("BorderRight")) || (coll.name.StartsWith("BorderBottom")))
+		{
+			Application.LoadLevel ("game");
 		}
 	}
 

@@ -42,20 +42,32 @@ public class SnakeManager : MonoBehaviour {
 				//}
 			}
 		}
-		InvokeRepeating ("Receive_Manager", 0.15f, 0.15f);
+		//InvokeRepeating ("Receive_Manager", 0.15f, 0.15f);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-
-	}
-	void Receive_Manager() {
 		string text = Startgame.Receive ();
-		if (text.Contains("<GAME>")) {
+		if (text.Contains ("<FOOD>")) {
+			string[] temp = text.Split (new string[] {"<FOOD>"}, StringSplitOptions.None);
+			Food f = JsonConvert.DeserializeObject<Food> (temp[1]);
+			//SpawnFood sf = new SpawnFood();
+			//Debug.Log("x: " + f.x + "    y: " +f.y);
+			SpawnFood.Get_Info(f.x, f.y);
+			
+		}
+		else if (text.Contains("<GAME>")) {
 			string[] temp = text.Split(new string[] {"<GAME>"}, StringSplitOptions.None);
 			Other_Player p = JsonConvert.DeserializeObject<Other_Player> (temp[1]);
 			Snake2 other = (Snake2)players [p.ID].GetComponent (typeof(Snake2));
 			other.Get_Info (p.x, p.y, p.dir_x, p.dir_y);
+			//TimeSpan difference = now.Subtract (DateTime.UtcNow);
+			//Debug.Log ("difference: " + difference.TotalSeconds);
+			
+
 		}
+	}
+	void Receive_Manager() {
+
 	}
 }
