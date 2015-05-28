@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Text;
+using Newtonsoft.Json;
 
 // State object for receiving data from remote device.
 public class StateObject {
@@ -33,8 +34,9 @@ public class AsynchronousClient {
 	//private static String response = String.Empty;
 	static string[] stringSeparators = new string[] { "<EOF>" };
 	public string ID = String.Empty;
+	public String p_num = String.Empty;
 	public Socket client;
-	public Boolean StartClient(string username, string password) {
+	public Boolean StartClient(string username, string password, string session) {
 		// Connect to a remote device.
 		try {
 			// Establish the remote endpoint for the socket.
@@ -57,7 +59,7 @@ public class AsynchronousClient {
 			// Send test data to the remote device.
 
 			//UnityEngine.Debug.Log ("test");
-			Send(client, "<LOGIN>" + username + "<SEP>" + password + "<EOF>");
+			Send(client, "<LOGIN>" + username + "<SEP>" + password + "<SEP>" + session + "<EOF>");
 			     sendDone.WaitOne(5000);
 			
 			// Receive the response from the remote device.
@@ -159,22 +161,91 @@ public class AsynchronousClient {
 				String[] message = content.Split(stringSeparators, StringSplitOptions.None);
 
 
-				if (message.Length == 2)
+				if (message.Length >= 2)
 				{
-					receiveDone.Set();
-					UnityEngine.Debug.Log (message[0]);
-					if (message[0].Contains("<ID>"))
-					{
-						string[] temp = message[0].Split(new string[] {"<ID>"}, StringSplitOptions.None);
-						ID = temp[0];// + "<ID>";
-						state.response = temp[1];
+					SnakeManager.receiving = false;
+					for (int i = 0; i < message.Length-1; i++) {
+						if (message[0].Contains("<P#>"))
+						{
+							string[] temp = message[0].Split(new string[] {"<P#>"}, StringSplitOptions.None);
+							p_num = temp[0];
+							string[] identify = temp[1].Split(new string[] {"<ID>"}, StringSplitOptions.None);
+							ID = identify[0];// + "<ID>";
+							state.response = identify[1];
+						}
+						else if (message [i].Contains ("<FOOD>")) {
+							string[] temp = message [i].Split (new string[] {"<FOOD>"}, StringSplitOptions.None);
+							Food f = JsonConvert.DeserializeObject<Food> (temp [1]);
+							//SpawnFood sf = new SpawnFood();
+							//Debug.Log("x: " + f.x + "    y: " +f.y);
+							SpawnFood.Get_Info (f.x, f.y);
+							
+						} else if (message [i].Contains ("<GAME>")) {
+							string[] temp = message [i].Split (new string[] {"<GAME>"}, StringSplitOptions.None);
+							string[] move = temp [1].Split (new string[] {"<SEP>"}, StringSplitOptions.None);
+							//Snake2 other = (Snake2)players [move [1]].GetComponent (typeof(Snake2));
+							SnakeManager.Snake2_Info(move[1], Convert.ToSingle (move [2]), Convert.ToSingle (move [3]), Convert.ToSingle (move [4]), Convert.ToSingle (move [5]));
+							//other.Get_Info (Convert.ToSingle (move [2]), Convert.ToSingle (move [3]), Convert.ToSingle (move [4]), Convert.ToSingle (move [5]));
+							
+						} else if (message [i].Contains ("<SCORE1>")) {
+							string[] temp = message [i].Split (new string[] {"<SCORE1>"}, StringSplitOptions.None);
+							//GameObject Snake2 = GameObject.Find ("Head");
+							//Snake2 p1 = GameObject.Find("Head");
+							int num = int.Parse (temp [1]);
+							SnakeManager.Snake2_Score("Head", num);
+							//InsertScore ("player1", num);
+							//Snake instanceOfSnake = GameObject.Find ("Head").GetComponent<Snake>();
+							//instanceOfSnake.Playerscore1(num);
+							//Debug.Log ("score sent");
+							//Snake2 = GetComponent<Snake2>().Playerscore1(num);
+							
+						} else if (message [i].Contains ("<SCORE2>")) {
+							string[] temp = message [i].Split (new string[] {"<SCORE2>"}, StringSplitOptions.None);
+							//GameObject Snake2 = GameObject.Find ("Head");
+							//Snake2 p1 = GameObject.Find("Head");
+							int num = int.Parse (temp [1]);
+							SnakeManager.Snake2_Score("Head 1", num);
+							//InsertScore ("player2", num);
+							//Snake instanceOfSnake = GameObject.Find ("Head 1").GetComponent<Snake>();
+							//instanceOfSnake.Playerscore1(num);
+							//Debug.Log ("score sent");
+							//Snake2 = GetComponent<Snake2>().Playerscore1(num);
+							
+						} else if (message [i].Contains ("<SCORE3>")) {
+							string[] temp = message [i].Split (new string[] {"<SCORE2>"}, StringSplitOptions.None);
+							//GameObject Snake2 = GameObject.Find ("Head");
+							//Snake2 p1 = GameObject.Find("Head");
+							int num = int.Parse (temp [1]);
+							SnakeManager.Snake2_Score("Head 2", num);
+							//InsertScore ("player3", num);
+							//Snake instanceOfSnake = GameObject.Find ("Head 1").GetComponent<Snake>();
+							//instanceOfSnake.Playerscore1(num);
+							//Debug.Log ("score sent");
+							//Snake2 = GetComponent<Snake2>().Playerscore1(num);
+							
+						} else if (message [i].Contains ("<DISCONNECT>")) {
+							string[] temp = message [i].Split (new string[] {"<DISCONNECT>"}, StringSplitOptions.None);
+							SnakeManager.Snake2_dc(temp [1]);
+						}
+						else if (message[i].Contains ("<GAMEOVER>")){
+							string[] temp = message [i].Split (new string[] {"<GAMEOVER>"}, StringSplitOptions.None);
+							SnakeManager.endgame(temp[1]);
+						}
+						else
+							state.response = message[i];
 					}
-					else if (message[0].Contains("<GAME>"))
+					state.sb.Length = 0;
+					state.sb.Capacity = 0;
+				}
+					/*receiveDone.Set();
+					UnityEngine.Debug.Log (message[0]);
+					if (message[0].Contains("<P#>"))
 					{
-						UnityEngine.Debug.Log ("GAME");
-						//string[] temp = message[0].Split(new string[] {"<GAME>"}, StringSplitOptions.None);
-						//UnityEngine.Debug.Log(temp[1]);
-						state.response = message[0];
+						string[] temp = message[0].Split(new string[] {"<P#>"}, StringSplitOptions.None);
+						p_num = temp[0];
+						string[] identify = temp[1].Split(new string[] {"<ID>"}, StringSplitOptions.None);
+						ID = identify[0];// + "<ID>";
+						state.response = identify[1];
 					}
 					else
 						state.response = message[0];
@@ -184,6 +255,12 @@ public class AsynchronousClient {
 					//state.workSocket.Close();
 					
 				}
+				else if (message.Length > 2)
+				{
+					for (int i = 1; i < message.Length-1; i++)
+						message[0] = message[0] + "<EOF>" + message[i];
+					state.response = message[0];
+				}*/
 				else
 				{
 					// Get the rest of the data.

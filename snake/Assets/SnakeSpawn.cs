@@ -28,6 +28,16 @@ public class SnakeSpawn : MonoBehaviour {
 				script2.enabled = true;
 			}
 		}
+		else if (gameObject.name == "Head 2") {
+			if (Startgame.Client.ID == "2") {
+				script1 = GetComponent<Snake> ();
+				script1.enabled = true;
+				//script1.player2Score.text = "Player 2: " + script1.scores;
+			} else {
+				script2 = GetComponent<Snake2> ();
+				script2.enabled = true;
+			}
+		}
 	}
 	
 	// Update is called once per frame

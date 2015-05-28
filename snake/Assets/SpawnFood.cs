@@ -37,7 +37,7 @@ public class SpawnFood : MonoBehaviour {
 		// Instantiate the food at (x, y)
 		//Debug.Log("spawnx: " + x + "    spawny: " +y);
 		
-		Startgame.Client.SendGameData("<FOOD>" + "<EOF>");
+		Startgame.Client.SendGameData(Startgame.Client.p_num +"<FOOD>" + "<EOF>");
 		Instantiate(foodPrefab,
 		            new Vector2(x, y),
 		            Quaternion.identity); // default rotation

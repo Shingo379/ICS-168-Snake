@@ -28,11 +28,27 @@ C:\Users\Oscar\Dropbox\snake\Server Code\Snake Server\Snake Server\bin\Debug\New
 C:\Users\Oscar\Dropbox\snake\Server Code\Snake Server\Snake Server\obj\Debug\Snake Server.csprojResolveAssemblyReference.cache
 C:\Users\Chris\Documents\snake\Server Code\Snake Server\Snake Server\bin\Debug\Newtonsoft.Json.dll
 C:\Users\Chris\Documents\snake\Server Code\Snake Server\Snake Server\bin\Debug\Newtonsoft.Json.xml
-C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\asdfghjkl\snake\Server Code\Snake Server\Snake Server\bin\Debug\Snake Server.exe.config
-C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\asdfghjkl\snake\Server Code\Snake Server\Snake Server\obj\Debug\Snake Server.exe
-C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\asdfghjkl\snake\Server Code\Snake Server\Snake Server\obj\Debug\Snake Server.pdb
-C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\asdfghjkl\snake\Server Code\Snake Server\Snake Server\bin\Debug\Snake Server.exe
-C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\asdfghjkl\snake\Server Code\Snake Server\Snake Server\bin\Debug\Snake Server.pdb
-C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\asdfghjkl\snake\Server Code\Snake Server\Snake Server\bin\Debug\Newtonsoft.Json.dll
-C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\asdfghjkl\snake\Server Code\Snake Server\Snake Server\bin\Debug\Newtonsoft.Json.xml
-C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\asdfghjkl\snake\Server Code\Snake Server\Snake Server\obj\Debug\Snake Server.csprojResolveAssemblyReference.cache
+C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\sessions\snaketest\Server Code\Snake Server\Snake Server\bin\Debug\Snake Server.exe.config
+C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\sessions\snaketest\Server Code\Snake Server\Snake Server\obj\Debug\Snake Server.exe
+C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\sessions\snaketest\Server Code\Snake Server\Snake Server\obj\Debug\Snake Server.pdb
+C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\sessions\snaketest\Server Code\Snake Server\Snake Server\bin\Debug\Snake Server.exe
+C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\sessions\snaketest\Server Code\Snake Server\Snake Server\bin\Debug\Snake Server.pdb
+C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\sessions\snaketest\Server Code\Snake Server\Snake Server\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\sessions\snaketest\Server Code\Snake Server\Snake Server\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\sessions\snaketest\Server Code\Snake Server\Snake Server\obj\Debug\Snake Server.csprojResolveAssemblyReference.cache
+C:\Users\Oscar\Dropbox\snaketest\Server Code\Snake Server\Snake Server\bin\Debug\Snake Server.exe.config
+C:\Users\Oscar\Dropbox\snaketest\Server Code\Snake Server\Snake Server\obj\Debug\Snake Server.exe
+C:\Users\Oscar\Dropbox\snaketest\Server Code\Snake Server\Snake Server\obj\Debug\Snake Server.pdb
+C:\Users\Oscar\Dropbox\snaketest\Server Code\Snake Server\Snake Server\bin\Debug\Snake Server.exe
+C:\Users\Oscar\Dropbox\snaketest\Server Code\Snake Server\Snake Server\bin\Debug\Snake Server.pdb
+C:\Users\Oscar\Dropbox\snaketest\Server Code\Snake Server\Snake Server\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Oscar\Dropbox\snaketest\Server Code\Snake Server\Snake Server\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Oscar\Dropbox\snaketest\Server Code\Snake Server\Snake Server\obj\Debug\Snake Server.csprojResolveAssemblyReference.cache
+C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\why do they keep making me fix stuff\snaketest\Server Code\Snake Server\Snake Server\bin\Debug\Snake Server.exe.config
+C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\why do they keep making me fix stuff\snaketest\Server Code\Snake Server\Snake Server\obj\Debug\Snake Server.exe
+C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\why do they keep making me fix stuff\snaketest\Server Code\Snake Server\Snake Server\obj\Debug\Snake Server.pdb
+C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\why do they keep making me fix stuff\snaketest\Server Code\Snake Server\Snake Server\bin\Debug\Snake Server.exe
+C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\why do they keep making me fix stuff\snaketest\Server Code\Snake Server\Snake Server\bin\Debug\Snake Server.pdb
+C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\why do they keep making me fix stuff\snaketest\Server Code\Snake Server\Snake Server\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\why do they keep making me fix stuff\snaketest\Server Code\Snake Server\Snake Server\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Shingo\Desktop\Programming\ICS 168\fuck those assholes\why do they keep making me fix stuff\snaketest\Server Code\Snake Server\Snake Server\obj\Debug\Snake Server.csprojResolveAssemblyReference.cache

@@ -4,22 +4,41 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.SQLite;
+using System.IO;
 
 namespace Snake_Server
 {
     public class Database
     {
-        public void Start()
+        public Database()
         {
-            SQLiteConnection.CreateFile("MyDatabase.sqlite");
-            SQLiteConnection m_dbConnection;
-            m_dbConnection =
-                new SQLiteConnection("Data Source=MyDatabase.sqlite;Version=3;");
-            m_dbConnection.Open();
-            string sql = "create table userinfo(name varchar not null unique, password varchar not null, primary key(name))";
-            //string sql = "create table userinfo (name varchar(20), password str)";
-            SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
-            command.ExecuteNonQuery();
+            if (!File.Exists("MyDatabase.sqlite"))
+            {
+                SQLiteConnection.CreateFile("MyDatabase.sqlite");
+                SQLiteConnection m_dbConnection;
+                m_dbConnection =
+                    new SQLiteConnection("Data Source=MyDatabase.sqlite;Version=3;");
+                m_dbConnection.Open();
+                string sql = "create table userinfo(name varchar not null unique, password varchar not null, scores varchar, primary key(name))";
+                //string sql1 = "create table Tscores(name varchar, scores)";
+                //sql = "create table Tscores(scores)";
+                //string sql = "create table userinfo (name varchar(20), password str)";
+                SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
+                command.ExecuteNonQuery();
+                //command = new SQLiteCommand(sql1, m_dbConnection);
+                //command.ExecuteNonQuery();
+
+                command.Dispose();
+                m_dbConnection.Close();
+                //SQLiteConnection.CreateFile("scores.sqlite");
+                //SQLiteConnection m_dbConnection1;
+                //m_dbConnection1 =
+                //    new SQLiteConnection("Data Source=scores.sqlite;Version=3;");
+                //m_dbConnection1.Open();
+                //string sql1 = "create table Tscores(scores varchar)";
+                //SQLiteCommand command1 = new SQLiteCommand(sql1, m_dbConnection1);
+                //command1.ExecuteNonQuery();
+            }
         }
 
         public void FillInfo(string username, string password)
@@ -29,12 +48,29 @@ namespace Snake_Server
                 new SQLiteConnection("Data Source=MyDatabase.sqlite;Version=3;");
             m_dbConnection.Open();
 
-            string sql = "insert into userinfo(name, password) values ('" + username + "', '" + password + "')";
+            string sql = "insert into userinfo(name, password, scores) values ('" + username + "', '" + password + "', '0')";
 
             SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection);
             command.ExecuteNonQuery();
+            command.Dispose();
+            m_dbConnection.Close();
         }
-        
+        public void InsertScore(string name, string score)
+        {
+            Console.WriteLine("calling insertscore");
+            using (SQLiteConnection m_dbConnection = new SQLiteConnection("Data Source=MyDatabase.sqlite;Version=3;"))
+            {
+                string sql = "update userinfo set scores = '" + score + "' where name = '" + name + "';";
+                Console.WriteLine(sql);
+                using (SQLiteCommand command = new SQLiteCommand(sql, m_dbConnection))
+                {
+                    
+                    command.Connection.Open();
+                    command.ExecuteNonQuery();
+                }
+            }
+            Console.WriteLine("done insertscore");
+        }
         public Boolean GetInfo(string username, string password)
         {
             SQLiteConnection m_dbConnection;
@@ -70,6 +106,10 @@ namespace Snake_Server
             catch
             {
                 //Console.WriteLine("Error");
+            }
+            finally
+            {
+                m_dbConnection.Close();
             }
             return false;
         }

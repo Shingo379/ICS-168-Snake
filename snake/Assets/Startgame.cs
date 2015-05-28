@@ -13,8 +13,10 @@ public class Startgame : MonoBehaviour {
 	public static StateObject recv_so = new StateObject ();
 	public InputField username;
 	public InputField password;
+	public InputField Session;
 	Boolean start = false;
 	Boolean login = false;
+	Text t;
 
 	static string GetMd5Hash(MD5 md5Hash, string input)
 	{
@@ -84,7 +86,7 @@ public class Startgame : MonoBehaviour {
 		if (login == true) {
 			string temp = Receive ();
 			//UnityEngine.Debug.Log (temp);
-			if (temp == "GAMESTART")
+			if (temp == "<HEARTBEAT>")
 			{
 				login = false;
 				start = true;
@@ -96,12 +98,13 @@ public class Startgame : MonoBehaviour {
 	public void LoadScene()  {
 		MD5 md5Hash = MD5.Create();
 		string hash_pass = GetMd5Hash (md5Hash, password.text);
-		Boolean client = Client.StartClient (username.text, hash_pass);
+		Boolean client = Client.StartClient (username.text, hash_pass, Session.text);
 		so.workSocket = Client.client;
 		recv_so.workSocket = Client.client;
 		if (client == true) {
+			t = GetComponentInChildren<Text>();
+			t.text = "Connected";
 			login = true;
-			//Application.LoadLevel ("game");
 		} 
 	}
 
