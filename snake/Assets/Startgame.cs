@@ -17,6 +17,8 @@ public class Startgame : MonoBehaviour {
 	Boolean start = false;
 	Boolean login = false;
 	Text t;
+	public static string user;
+	public static string id;
 
 	static string GetMd5Hash(MD5 md5Hash, string input)
 	{
@@ -78,19 +80,21 @@ public class Startgame : MonoBehaviour {
 		recv_so.sb.Length = 0;
 		recv_so.sb.Capacity = 0;
 		Client.Receive (recv_so);
+		//Debug.Log ("response is:"+recv_so.response);
 		return recv_so.response;
 	}
 
 
 	void Update () {
 		if (login == true) {
-			string temp = Receive ();
+			//string temp = Receive ();
 			//UnityEngine.Debug.Log (temp);
-			if (temp == "<HEARTBEAT>")
-			{
-				login = false;
-				start = true;
-			}
+			//if (temp == "<HEARTBEAT>")
+			//{
+			//	login = false;
+			//	start = true;
+			//}
+			Application.LoadLevel("lobby");
 		}
 		if (start == true)
 			Application.LoadLevel ("game");
@@ -98,12 +102,15 @@ public class Startgame : MonoBehaviour {
 	public void LoadScene()  {
 		MD5 md5Hash = MD5.Create();
 		string hash_pass = GetMd5Hash (md5Hash, password.text);
-		Boolean client = Client.StartClient (username.text, hash_pass, Session.text);
+		//Boolean client = Client.StartClient (username.text, hash_pass, Session.text);
+		Boolean client = Client.StartClient (username.text, hash_pass);
 		so.workSocket = Client.client;
 		recv_so.workSocket = Client.client;
 		if (client == true) {
 			t = GetComponentInChildren<Text>();
 			t.text = "Connected";
+			user = username.text;
+			id = Client.p_num;
 			login = true;
 		} 
 	}

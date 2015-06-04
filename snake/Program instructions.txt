@@ -1,13 +1,19 @@
 Game is to be built with the startgame, game, and endgame scenes and begins with the startgame scene. 
 Server solution within the server code folder is to be ran from visual studio. 
-Clients begin the game on the startgame scene and input login information and a session name.
+Clients begin the game on the startgame scene and input login information. Once connected, the player
+will be in the lobby. In this lobby, the player can chat with other players in the lobby. The player
+can also input a session name which will join that session or create it if it doesn't exist.
 Once the client is connected and enough clients join the session, the game will start. 
 
 The client currently supports up to 3 players. Number of players in a game session can be modified in
- server code on line 260. Head object in unity should be removed/added accordingly.
+server code on line 260. Head object in unity should be removed/added accordingly.
 
 Milestone issues
 -Scoreboard data is only properly saved to the server if the database file was just created. 
 If trying to use an old database, the sql update will hang and the sql database will lock. 
 To ensure stability, delete the database file “MyDatabase.sqlite” in the server code folders if 
 it exists before beginning server.
+
+Extra Credit
+-(ec2) Lobby-like Chatroom - Associated files: Chatbox.cs, lobby.unity, client.cs, and server.cs
+-(ec3) Improved High Level Architecture - Associated files: High Level Architecture.txt

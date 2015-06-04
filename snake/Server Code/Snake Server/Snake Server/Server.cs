@@ -71,6 +71,7 @@ namespace Snake_Server
         public static Dictionary<String, String> playerName = new Dictionary<String,String>();
         public static Dictionary<String, Dictionary<String, Player>> playersBySession = new Dictionary<string, Dictionary<string, Player>>();
         public static Dictionary<String, Game_State> sessionState = new Dictionary<String, Game_State>();
+        public static List<String> lobbyPlayers = new List<String>();
         //public static Player p1 = new Player("0", -21, 15, 1, 0, "default");
         //public static Player p2 = new Player("1", 21, 15, -1, 0, "default");
         //public static Player p3 = new Player("2", -21, -15, 1, 0, "default");
@@ -185,9 +186,9 @@ namespace Snake_Server
             Socket handler = state.workSocket;
 
             // Read data from the client socket. 
-            //try
-            //{
-                int bytesRead = handler.EndReceive(ar);
+            try
+            {
+              int bytesRead = handler.EndReceive(ar);
                 Console.WriteLine(iNeedFood.ToString());
                 foreach (string s in sessionState.Keys)
                 {
@@ -215,6 +216,7 @@ namespace Snake_Server
                     // Check for end-of-file tag. If it is not there, read 
                     // more data.
                     content = state.sb.ToString();
+                    Console.WriteLine(content);
                     if (content.IndexOf("<EOF>") > -1)
                     {
                         // All the data has been read from the  
@@ -224,35 +226,49 @@ namespace Snake_Server
                         Console.WriteLine("\n\n");
                         content = content.Substring(0, content.IndexOf("<EOF>"));
                         Console.WriteLine(content);
-                        if (content.Contains("<LOGIN>"))
+                        if (content.Contains("<CONNECT>"))
+                        {
+                            Console.WriteLine("detected connect");
+                            string[] temp = content.Split(new string[] { "<CONNECT>" }, StringSplitOptions.None);
+                            string[] info = temp[1].Split(new string[] { "<SEP>" }, StringSplitOptions.None);
+                            Boolean result = b.GetInfo(info[0], info[1]);
+                            if (result)
+                            {
+                                Send(handler, "<CONNECTED>" + (clients.Count - 1).ToString() + "<EOF>");
+                                lobbyPlayers.Add((clients.Count - 1).ToString());
+                            }
+                            else
+                                Send(handler, "Failed<EOF>");
+                        }
+                        else if (content.Contains("<LOGIN>"))
                         {
                             Console.WriteLine("hellotestinglogin");
                             content = content.Substring(content.IndexOf("<LOGIN>") + 7);
                             string[] info = content.Split(new string[] { "<SEP>" }, StringSplitOptions.None);
                             Console.WriteLine(info[0]);
-                            Boolean result = b.GetInfo(info[0], info[1]);
-                            if (result == true)
-                            {
+                            //Boolean result = b.GetInfo(info[0], info[1]);
+                            //if (result == true)
+                            //{
                                 Console.WriteLine("sending");
                                 //string id = (clients.Count-1).ToString() + "<ID>";
-                                playerName.Add((clients.Count - 1).ToString(), info[0]);
-                                players[(clients.Count - 1).ToString()].game_session = info[2];
-                                players[(clients.Count - 1).ToString()].ID = (clients.Count - 1).ToString();
+                                playerName.Add(info[1], info[0]);
+                                players[info[1]].game_session = info[2];
+                                players[info[1]].ID = info[1];
                                 if (playersBySession.ContainsKey(info[2]))
                                 {
-                                    players[(clients.Count - 1).ToString()].secondID = (playersBySession[info[2]].Count).ToString();
-                                    playersBySession[info[2]].Add((playersBySession[info[2]].Count).ToString(), players[(clients.Count - 1).ToString()]);
+                                    players[info[1]].secondID = (playersBySession[info[2]].Count).ToString();
+                                    playersBySession[info[2]].Add((playersBySession[info[2]].Count).ToString(), players[info[1]]);
                                 }
                                 else
                                 {
                                     Dictionary<string, Player> temp = new Dictionary<string, Player>();
-                                    players[(clients.Count - 1).ToString()].secondID = (temp.Count).ToString();
-                                    temp.Add((temp.Count).ToString(), players[(clients.Count - 1).ToString()]);
+                                    players[info[1]].secondID = (temp.Count).ToString();
+                                    temp.Add((temp.Count).ToString(), players[info[1]]);
                                     playersBySession.Add(info[2], temp);
                                     Game_State temp_state = new Game_State(false, false);
                                     sessionState.Add(info[2], temp_state);
                                 }
-                                Send(handler, (clients.Count - 1).ToString() + "<P#>" + (playersBySession[info[2]].Count - 1) + "<ID>Success<EOF>");
+                                Send(handler, info[1] + "<P#>" + (playersBySession[info[2]].Count - 1) + "<ID>Success<EOF>");
                                 //int ID = clients.Count-1;
                                 //int checkPlayersinSession = 0;
                                 foreach (string a in playersBySession.Keys)
@@ -269,15 +285,16 @@ namespace Snake_Server
                                         {
                                             Console.WriteLine("SENDING TO: " + s);
                                             Send(clients[playersBySession[a][s].ID], "GAMESTART<EOF>");
+                                            lobbyPlayers.Remove(s);
                                         }
                                     }
                                 }
+                            //}
+                            //else
+                            //{
+                            //    Send(handler, "Failed<EOF>");
                             }
-                            else
-                            {
-                                Send(handler, "Failed<EOF>");
-                            }
-                        }
+                        //}
                         else if (content.Contains("<FOOD>"))
                         {
                             string[] temp = content.Split(new string[] { "<FOOD>" }, StringSplitOptions.None);
@@ -350,6 +367,16 @@ namespace Snake_Server
                                     Send(clients[p.ID], "<GAMEOVER>Player 3<EOF>");
                             }
                         }
+                        else if (content.Contains("<MESSAGE>"))
+                        {
+                            //Console.WriteLine("im over here");
+                            string[] temp = content.Split(new string[] { "<MESSAGE>" }, StringSplitOptions.None);
+                            string temp_id = temp[0];
+                            foreach (string s in lobbyPlayers)
+                            {
+                                Send(clients[s], "<MESSAGE>" + temp[1] + "<EOF>");
+                            }
+                        }
                         // Setup a new state object
                         StateObject newstate = new StateObject();
                         newstate.workSocket = handler;
@@ -365,12 +392,24 @@ namespace Snake_Server
                         new AsyncCallback(ReadCallback), state);
                     }
                 }
-            //}
-            //catch { }
+            }
+            catch {
+                handler.Close();
+                foreach (string s in clients.Keys)
+                {
+                    if (clients[s] == handler)
+                    {
+                        if (!dc_clients.Contains(s))
+                            dc_clients.Add(s);
+                    }
+                }
+                Console.WriteLine("a user has disconnected");
+            }
         }
 
         private static void Send(Socket handler, String data)
         {
+            Console.WriteLine("sending:" + data);
             // Convert the string data to byte data using ASCII encoding.
             byte[] byteData = Encoding.ASCII.GetBytes(data);
 
@@ -430,14 +469,17 @@ namespace Snake_Server
             {
                 for (int s = 0; s < dc_clients.Count; s++)
                 {
-                    Console.WriteLine("removing:" + dc_clients[s]);
-                    string this_session = players[dc_clients[s]].game_session;
-                    playersBySession[players[dc_clients[s]].game_session].Remove(players[dc_clients[s]].secondID);
-                    players.Remove(dc_clients[s]);
-                    //clients.Remove(dc_clients[s]);
-                    foreach (Player x in playersBySession[this_session].Values)
+                    if (players.ContainsKey(dc_clients[s]))
                     {
-                        Send(clients[x.ID], "<DISCONNECT>" + dc_clients[s].ToString() + "<EOF>");
+                        Console.WriteLine("removing:" + dc_clients[s]);
+                        string this_session = players[dc_clients[s]].game_session;
+                        playersBySession[players[dc_clients[s]].game_session].Remove(players[dc_clients[s]].secondID);
+                        players.Remove(dc_clients[s]);
+                        //clients.Remove(dc_clients[s]);
+                        foreach (Player x in playersBySession[this_session].Values)
+                        {
+                            Send(clients[x.ID], "<DISCONNECT>" + dc_clients[s].ToString() + "<EOF>");
+                        }
                     }
                 }
                 dc_clients.Clear();

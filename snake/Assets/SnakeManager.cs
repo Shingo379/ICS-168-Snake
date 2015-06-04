@@ -9,25 +9,6 @@ public class SnakeManager : MonoBehaviour {
 
 	public static Boolean receiving = false;
 	public static string winner = string.Empty;
-	
-	public class Other_Player{
-		public Other_Player(string i, float start_x, float start_y, float start_dirx, float start_diry, string session)
-		{
-			ID = i;
-			x = start_x;
-			y = start_y;
-			dir_x = start_dirx;
-			dir_y = start_diry;
-			session = Session;
-		}
-		public string ID;
-		public float x;
-		public float y;
-		public float dir_x;
-		public float dir_y;
-		public string Session;
-	}
-	
 	public static Dictionary<string, GameObject> players = new Dictionary<string, GameObject>();
 	public static Dictionary<string, Snake2> players2 = new Dictionary<string, Snake2>();
 	

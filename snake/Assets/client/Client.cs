@@ -36,7 +36,7 @@ public class AsynchronousClient {
 	public string ID = String.Empty;
 	public String p_num = String.Empty;
 	public Socket client;
-	public Boolean StartClient(string username, string password, string session) {
+	public Boolean StartClient(string username, string password) {
 		// Connect to a remote device.
 		try {
 			// Establish the remote endpoint for the socket.
@@ -59,7 +59,9 @@ public class AsynchronousClient {
 			// Send test data to the remote device.
 
 			//UnityEngine.Debug.Log ("test");
-			Send(client, "<LOGIN>" + username + "<SEP>" + password + "<SEP>" + session + "<EOF>");
+			//Send(client, "<LOGIN>" + username + "<SEP>" + password + "<SEP>" + session + "<EOF>");
+			UnityEngine.Debug.Log("<CONNECT>" + username + "<SEP>" + password + "<EOF>");
+			Send (client, "<CONNECT>" + username + "<SEP>" + password + "<EOF>");
 			     sendDone.WaitOne(5000);
 			
 			// Receive the response from the remote device.
@@ -75,6 +77,7 @@ public class AsynchronousClient {
 			//Console.WriteLine("Response received : {0}", response);
 			if (recv_so.response == "Success")
 			{
+				recv_so.response = string.Empty;
 				return true;
 			}
 			//else
@@ -165,13 +168,25 @@ public class AsynchronousClient {
 				{
 					SnakeManager.receiving = false;
 					for (int i = 0; i < message.Length-1; i++) {
-						if (message[0].Contains("<P#>"))
+						if (message[0].Contains("<CONNECTED>"))
+						{
+							UnityEngine.Debug.Log("connected");
+							string[] temp = message[0].Split (new string[] {"<CONNECTED>"}, StringSplitOptions.None);
+							p_num = temp[1];
+							state.response = "Success";
+						}
+						else if (message[0].Contains("<P#>"))
 						{
 							string[] temp = message[0].Split(new string[] {"<P#>"}, StringSplitOptions.None);
 							p_num = temp[0];
 							string[] identify = temp[1].Split(new string[] {"<ID>"}, StringSplitOptions.None);
 							ID = identify[0];// + "<ID>";
-							state.response = identify[1];
+							Chatbox.input = "Success";
+							//state.response = identify[1];
+						}
+						else if (message[0].Contains("GAMESTART"))
+						{
+							Chatbox.input = "<GAMESTART>";
 						}
 						else if (message [i].Contains ("<FOOD>")) {
 							string[] temp = message [i].Split (new string[] {"<FOOD>"}, StringSplitOptions.None);
@@ -230,6 +245,15 @@ public class AsynchronousClient {
 						else if (message[i].Contains ("<GAMEOVER>")){
 							string[] temp = message [i].Split (new string[] {"<GAMEOVER>"}, StringSplitOptions.None);
 							SnakeManager.endgame(temp[1]);
+						}
+						else if (message[i].Contains("<MESSAGE>")){
+							string[] temp = message [i].Split (new string[] {"<MESSAGE>"}, StringSplitOptions.None);
+							//Chatbox.Display(temp[1]);
+							Chatbox.input = temp[1];
+							//state.response = temp[1];
+						}
+						else if (Chatbox.in_lobby == true && message[i].Contains("<HEARTBEAT>")){
+							Chatbox.Begin();
 						}
 						else
 							state.response = message[i];
