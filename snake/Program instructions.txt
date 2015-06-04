@@ -16,4 +16,4 @@ it exists before beginning server.
 
 Extra Credit
 -(ec2) Lobby-like Chatroom - Associated files: Chatbox.cs, lobby.unity, client.cs, and server.cs
--(ec3) Improved High Level Architecture - Associated files: High Level Architecture.txt or .docx
+-(ec3) Improved High Level Architecture - Associated files: High Level Architecture.txt or .docx (same thing)
